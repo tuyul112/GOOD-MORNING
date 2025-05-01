@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CSS scroll-triggered animations with style queries</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
+<link rel="stylesheet" href="./style.css">
+<style>
+    * {
+  box-sizing: border-box;
+}
+
+:root {
+  --color: #1e293b;
+  --c1: #fbda61;
+  --c2: #ff5acd;
+  --c3: #2563eb;
+  --gradient: linear-gradient(
+    60deg,
+    var(--c3),
+    var(--c2),
+    var(--c1),
+    var(--c2),
+    var(--c3)
+  );
+  --scale-start: 0.5;
+  --scale-end: 1.001;
+  --hover-offset: 5%;
+
+  /* 
+    linear easing generator
+    https://linear-easing-generator.netlify.app/
+  */
+  /* prettier-ignore */
+  --ease-elastic: linear(
+    0, 0.186 2.1%, 0.778 7.2%, 1.027 9.7%, 1.133, 1.212, 1.264, 1.292 15.4%,
+    1.296, 1.294, 1.285, 1.269 18.9%, 1.219 20.9%, 1.062 25.8%, 0.995 28.3%,
+    0.944 31.1%, 0.93, 0.921, 0.92 35.7%, 0.926, 0.94 39.7%, 1.001 47%, 1.014,
+    1.021 52.4%, 1.02 56.4%, 1 65.5%, 0.994 70.7%, 1.001 88.4%, 1
+  );
+  --ease-bounce-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-reduced-motion) {
+  :root {
+    --scale-start: var(--scale-end);
+    --ease-elastic: ease-out;
+    --ease-bounce-out: ease-out;
+    --hover-offset: 0;
+  }
+}
+
+body {
+  padding-inline: 1rem;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.527),rgba(0, 0, 0, 0.5)) , url(pagi.gif);
+             background-repeat: no-repeat;
+             background-attachment:fixed;
+             background-size: cover;
+  font-family: system-ui;
+  font-weight: 700;
+  font-size: calc(1rem + 10vmin);
+  text-align: center;
+  overflow-x: hidden;
+}
+
+.intro {
+  display: flex;
+  justify-content: center;
+  gap: 0.2em;
+  font-size: 0.5em;
+  -webkit-margin-before: calc(50vh - 1ex);
+          margin-block-start: calc(50vh - 1ex);
+}
+
+.intro span {
+  display: inline-block;
+}
+
+.intro span:first-child {
+  transform-origin: right bottom;
+  -webkit-animation: wave 250ms 1s ease 3;
+          animation: wave 250ms 1s ease 3;
+}
+
+.intro span:last-child {
+  -webkit-animation: hover 500ms linear infinite;
+          animation: hover 500ms linear infinite;
+}
+
+.box {
+  margin-block: 55vh;
+}
+
+.text {
+  margin-inline: auto;
+  padding-block: 0.2em;
+  max-inline-size: 15ch;
+  font-size: 2em;
+  text-wrap: balance;
+  background-image: var(--gradient);
+  background-size: 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@supports (animation-timeline: view()) {
+  .box {
+    -webkit-animation: trigger steps(1) both, fade linear both;
+            animation: trigger steps(1) both, fade linear both;
+    animation-timeline: view();
+    animation-range: entry 80% contain 40%;
+  }
+
+  .text {
+    -webkit-animation: pop-back 300ms var(--ease-bounce-out) forwards;
+            animation: pop-back 300ms var(--ease-bounce-out) forwards;
+  }
+
+  @container style(--animate: true) {
+    .text {
+      -webkit-animation: pop 600ms var(--ease-elastic) forwards,
+        text-gradient 1s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+              animation: pop 600ms var(--ease-elastic) forwards,
+        text-gradient 1s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+    }
+  }
+}
+
+.smile {
+  width: 300px;
+  height: 300px;
+  margin-inline: auto;
+  
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-margin-after: calc(62vh - 1ex);
+          margin-block-end: calc(62vh - 1ex);
+}
+
+.smile div {
+padding-inline: 1px;
+  display: hidden;
+  -webkit-animation: wink 2s steps(1) infinite;
+          animation: wink 2s steps(1) infinite;
+}
+
+.smile span {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+}
+
+@-webkit-keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes trigger {
+  to {
+    --animate: true;
+  }
+}
+
+@keyframes trigger {
+  to {
+    --animate: true;
+  }
+}
+
+@-webkit-keyframes pop {
+  from {
+    scale: var(--scale-start);
+  }
+  to {
+    scale: var(--scale-end);
+  }
+}
+
+@keyframes pop {
+  from {
+    scale: var(--scale-start);
+  }
+  to {
+    scale: var(--scale-end);
+  }
+}
+
+@-webkit-keyframes text-gradient {
+  100% {
+    background-position: 150% center;
+  }
+}
+
+@keyframes text-gradient {
+  100% {
+    background-position: 150% center;
+  }
+}
+
+@-webkit-keyframes pop-back {
+  from {
+    scale: var(--scale-end);
+  }
+  to {
+    color: var(--color);
+    scale: var(--scale-start);
+  }
+}
+
+@keyframes pop-back {
+  from {
+    scale: var(--scale-end);
+  }
+  to {
+    color: var(--color);
+    scale: var(--scale-start);
+  }
+}
+
+@-webkit-keyframes wink {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25%,
+  75% {
+    translate: -100% 0;
+  }
+  50% {
+    translate: -200% 0;
+  }
+}
+
+@keyframes wink {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25%,
+  75% {
+    translate: -100% 0;
+  }
+  50% {
+    translate: -200% 0;
+  }
+}
+
+@-webkit-keyframes wave {
+  50% {
+    rotate: 10deg;
+  }
+}
+
+@keyframes wave {
+  50% {
+    rotate: 10deg;
+  }
+}
+
+@-webkit-keyframes hover {
+  from,
+  to {
+    translate: 0 calc(var(--hover-offset) * -1);
+  }
+  50% {
+    translate: 0 var(--hover-offset);
+  }
+}
+
+@keyframes hover {
+  from,
+  to {
+    translate: 0 calc(var(--hover-offset) * -1);
+  }
+  50% {
+    translate: 0 var(--hover-offset);
+  }
+}
+
+#scrollButton {
+            position: relative;
+            top: 3em;
+            font-size: 1em;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+      
+       .emoji {
+            font-size: 50px;
+            margin-top: 1.5em;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;            
+            transition: transform 0.1s;
+        }
+        .progress-container {
+            position: relative;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #76c7c0;
+            width: 0;
+            transition: width 0.1s;
+        }
+
+#gameFrame {
+position: center;
+            display: none;
+            width: 100%;
+            height: 90vh;
+            border: 2px solid #333;
+            position: relative;
+            margin-bottom: 20vh;
+            overflow: hidden;
+            background-image: url('cloud.gif');
+        }
+        .bird {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-image: url('burung.gif'); /* Ganti dengan URL gambar burung */
+            background-size: cover;
+            cursor: pointer;
+        }
+        .falling {
+            animation: fall 1s forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        #popup {
+        background-color: #fff
+        color: #000
+        border-radius: 10px;
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;            
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px 20px 20px;
+            border: 2px solid red;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+
+}
+.cookisimg {
+  width: 10px;
+  height:10px;
+  margin-bottom: 3px;
+}
+.cookisp {
+teks-align: center;
+  margin-bottom: 40px;
+  font-size: 18px;
+}
+.buttonyes{
+  background-color: #ed6755;
+  border: 2px solid black;
+  border-radius: 5px;
+  width: 200px;
+  margin: 2px;
+  padding: 14px;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0px 6px 18px -5px #ed6755;
+}
+.btn{
+height: 40px;
+width: 100px;
+color: white;
+border: 2px solid white;
+border-radius: 10px;
+font-family: georgia;
+background-color: red;
+    margin-bottom: 65vh;
+}
+.end{display: hidden;
+    margin-bottom: 1em;
+}
+.minigem{
+    position: relative;
+    margin-bottom: 2em;    
+    display: hidden;
+}
+
+#typewriter {
+    white-space: pre-wrap; /* preserve new lines */
+    font-size: 1.2rem;
+    color: white;
+    line-height: 1.2;
+    padding: 4px;
+    overflow-wrap: break-word;
+    min-height: 6em;
+    border: 2px solid white;
+    border-radius: 10px;
+    }
+    
+    
+    </style>
+     
+</style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+
+<div role="img" class="intro" aria-label="Scroll down for the magic">
+  <span>
+      <marquee style="font-size: 1.5em; color: white; font-family: georgia;" direction="left">Click Heart</marquee></span>
+</div>
+ 
+  <div class="emoji" id="emoji">❤️</div>
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+        
+    </div>
+    
+    <audio id="audio" src="musik.mp3"></audio>
+
+<div class="box">
+  <p class="text">I Want To Say </p>
+</div>
+<div class="box">
+  <p class="text">"Good Morning Sayangku"</p>
+</div>
+<div class="box">
+  <p class="text">But You Alredy Know</p>
+</div>
+<div class="box">
+  <p class="text">Your Day Will Be GOOD Kalo Ada Aku</p>
+  <p>🤣🤣</p>
+  </div>
+  <div class="box">
+  <p class="text">I Love U Sayang</p>
+  <p>😘😘</p>
+  </div>
+ 
+  </div>
+</div>
+<div class="smile" role="img" aria-hidden>
+  <div>
+    
+    <span><img style="width: 300px; height: 300px"  src="kucing1.gif" alt=""></span>
+    <span><img style="width: 300px; height: 300px" src="kucing2.gif" alt=""></span>
+    <span><img style="width: 300px; height: 300px" src="kucing3.gif" alt=""></span>
+    
+  </div>
+  
+</div>
+<div class="end">
+    <div class="minigem" id="gameFrame">
+</div>
+<div id="typewriter"></div>
+<button class="btn" id="startButton">Mulai Game</button>
+</div>
+
+
+<div id="popup">
+    
+    <img style="height: 80px; width: 80px; margin-left: 0px; border:2px black; border-radius: 250px;" src="f.gif" alt="">
+    <h1 style="margin-left: 0px; font-size: 20px; font-family: georgia;"> Are you surrender?</h1>
+    <button class="buttonyes"id="yesButton">Yes</button>
+    <button class="buttonyes"id="noButton">No</button>
+</div>
+
+<!-- partial -->
+       <script>
+        const emoji = document.getElementById('emoji');
+        const audio = document.getElementById('audio');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+
+        emoji.addEventListener('click', () => {
+            // Memutar lagu
+            audio.play();
+            // Menampilkan bar progres
+            progressContainer.style.display = 'block';
+            // Memulai getaran
+            emoji.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                emoji.style.transform = 'scale(1)';
+            }, 100);
+
+            // Mengatur progres
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                    }, 2000);
+                }
+            }, (audio.duration / 100) * 20); // Mengatur interval sesuai durasi lagu
+        });
+
+        // Fungsi untuk scroll otomatis
+        let scrollIndex = 0;
+        const scrollToNextSection = () => {
+            scrollIndex++;
+            window.scrollTo({
+                top: scrollIndex * window.innerHeight,
+                behavior: 'smooth'
+            });
+            if (scrollIndex < 7) { // Ganti 2 dengan jumlah section yang diinginkan
+                setTimeout(scrollToNextSection, 4000); // Jeda 3 detik
+            }
+        };
+
+        // Memulai scroll otomatis
+        setTimeout(scrollToNextSection, 10000);
+        
+        const startButton = document.getElementById('startButton');
+    const gameFrame = document.getElementById('gameFrame');
+    const popup = document.getElementById('popup');
+    let tapCount = 0;
+
+    startButton.addEventListener('click', () => {
+        gameFrame.style.display = 'block';
+        startButton.style.display = 'none';
+        spawnBirds();
+    });
+
+    function spawnBirds() {
+        for (let i = 0; i < 6; i++) {
+            createBird(i === 0); // Burung pertama tidak mati
+        }
+    }
+
+    function createBird(isImmortal) {
+        const bird = document.createElement('div');
+        bird.classList.add('bird');
+        bird.style.left = Math.random() * (gameFrame.clientWidth - 50) + 'px';
+        bird.style.top = Math.random() * (gameFrame.clientHeight - 50) + 'px';
+        bird.addEventListener('click', () => handleBirdClick(bird, isImmortal));
+        gameFrame.appendChild(bird);
+    }
+
+    function handleBirdClick(bird, isImmortal) {
+        if (isImmortal) {
+        bird.style.top = Math.random() * 80 + 'vh';
+                bird.style.left = Math.random() * 80 + 'vw';
+            tapCount++;
+            if (tapCount === 3) {
+                popup.style.display = 'block';
+            }
+        } else {
+            bird.classList.add('falling');
+            setTimeout(() => {
+                bird.remove();
+            }, 1000);
+        }
+    }
+
+    document.getElementById('yesButton').addEventListener('click', () => {
+        window.open('https://wa.me/+6281293943689', '_blank'); // Ganti dengan nomor WhatsApp Anda
+    });
+
+    document.getElementById('noButton').addEventListener('click', () => {
+        tapCount = 0; // Reset tap count
+        popup.style.display = 'none';
+        spawnBirds(); // Spawn new birds
+    });
+    
+    (function() {
+    const typewriter = document.getElementById('typewriter');
+
+    // Lines to be typed
+    const lines = [
+      "Halo, Sayangkuu",
+      "I Make Mini Games For You.",
+      "Kalau Kamu Menang, Aku Akan Mengabulkan 1 Permintaanmu .",
+      "But If You Lose/ Surrender, Kirim Aku PAP Imut Kamu😘.",
+      "rules game: Kamu Hanya Perlu Menjatuhkan Semua Burung Yang Ada di Layar Dengan Cara Men-Tap burungnya",
+      "thats So Easy, GoodLuck Baby😘😘",
+      "klik Start Game untuk Memulai Game..!"
+    ];
+
+    const typingSpeed = 75; // ms per character
+    const delayBeforeStart = 35000; // 15 seconds
+
+    // Function to type one line (string) and return a Promise that resolves after done
+    function typeLine(line) {
+      return new Promise(resolve => {
+        let index = 0;
+        function typeNextChar() {
+          if (index < line.length) {
+            typewriter.textContent += line.charAt(index);
+            index++;
+            setTimeout(typeNextChar, typingSpeed);
+          } else {
+            typewriter.textContent += "\n";
+            resolve();
+          }
+        }
+        typeNextChar();
+      });
+    }
+
+    // Async function to sequentially type all lines with an initial delay
+    async function startTyping() {
+      await new Promise(r => setTimeout(r, delayBeforeStart));
+      for (let line of lines) {
+        await typeLine(line);
+      }
+      // Remove cursor after finish
+      typewriter.style.borderRight = "none";
+    }
+
+    startTyping();
+  })();
+    </script>
+</body>
+</html>
